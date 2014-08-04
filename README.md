@@ -1,0 +1,4 @@
+Dispatcher
+==========
+
+JavaScript concurrency object
