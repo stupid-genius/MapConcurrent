@@ -1,6 +1,6 @@
-Dispatcher
+MapConcurrent
 ==========
 
-JavaScript concurrency object
+## A multithreaded array.map
 
-[JSFiddle](http://jsfiddle.net/stupid_genius/kucQ7/)
+[Original idea](http://jsfiddle.net/stupid_genius/kucQ7/)
