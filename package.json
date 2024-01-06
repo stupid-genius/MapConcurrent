@@ -1,0 +1,21 @@
+{
+  "name": "partitionedbuffer",
+  "version": "1.0.0",
+  "description": "A striped array of concurrent buffers",
+  "scripts": {
+    "test": "karma start"
+  },
+  "author": "Stupid Genius Software",
+  "license": "GPL-3.0",
+  "devDependencies": {
+    "chai": "^5.0.0",
+    "esbuild": "^0.19.11",
+    "karma": "^6.4.2",
+    "karma-chrome-launcher": "^3.2.0",
+    "karma-esbuild": "^2.3.0",
+    "karma-firefox-launcher": "^2.1.2",
+    "karma-mocha": "^2.0.1",
+    "karma-mocha-reporter": "^2.2.5",
+    "mocha": "^10.2.0"
+  }
+}
