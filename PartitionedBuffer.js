@@ -70,22 +70,21 @@ function PartitionedBuffer(type, size){
 		map: {
 			value: function(transform){
 				const blob = new Blob([`self.onmessage=function(msg){
-					const response = (${transform.toString()})(msg.data);
+					const response = msg.data.map(${transform.toString()});
 					postMessage(response, [msg.data.buffer]);
 				}`], {type: 'application/javascript'});
 				const blobURL = URL.createObjectURL(blob)
-				const workers = [];
 
-				for(let i=0; i<threads; i++){
-					workers.push(new Promise((res, _rej) => {
+				const workers = segments.map((segment, i) => {
+					return new Promise((res) => {
 						const worker = new Worker(blobURL);
 						worker.onmessage = function(msg){
 							segments[i] = new type(msg.data.buffer);
 							res(msg.data);
 						};
-						worker.postMessage(segments[i], [segments[i].buffer]);
-					}));
-				}
+						worker.postMessage(segment, [segment.buffer]);
+					});
+				});
 				return Promise.all(workers).then(result => result.flat());
 			}
 		},

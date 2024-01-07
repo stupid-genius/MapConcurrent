@@ -40,9 +40,7 @@ describe('PartitionedBuffer', function(){
 		const parbuf = new PartitionedBuffer(Int32Array, 120);
 		parbuf.push(42, 24, 16, 32);
 
-		await parbuf.map(data => {
-			return data.map((e) => e * 2);
-		});
+		await parbuf.map((e) => e * 2);
 		expect(Array.from(parbuf)).deep.equal([84, 48, 32, 64]);
 	});
 	it('should be faster than non-concurrent map', async function(){
@@ -62,9 +60,7 @@ describe('PartitionedBuffer', function(){
 		// const setup = performance.now()-start;
 		// console.debug(`setup: ${Math.round(setup)}ms`);
 
-		// console.debug('starting non-concurrent test');
-		start = performance.now();
-		const nonConResult = elem.map((x) => {
+		function work(x){
 			let result = 0;
 			const iterations = 25;
 			for(let i = 0; i < iterations; i++){
@@ -73,24 +69,17 @@ describe('PartitionedBuffer', function(){
 				}
 			}
 			return Math.floor(result);
-		});
+		}
+
+		// console.debug('starting non-concurrent test');
+		start = performance.now();
+		const result = elem.map(work);
 		const nonConcurrent = performance.now()-start;
 		console.info(`non-concurrent: ${Math.round(nonConcurrent)}ms`);
 
 		// console.debug('starting concurrent test');
 		start = performance.now();
-		await parbuf.map(data => {
-			return data.map((x) => {
-				let result = 0;
-				const iterations = 25;
-				for(let i = 0; i < iterations; i++){
-					for(let j = 0; j < iterations; j++){
-						result = x * (Math.sin(result * i) + Math.cos(result * j)) + x;
-					}
-				}
-				return Math.floor(result);
-			});
-		});
+		await parbuf.map(work);
 		const concurrent = performance.now()-start;
 		console.info(`concurrent: ${Math.round(concurrent)}ms`);
 		console.info(`speed up: ${(nonConcurrent/concurrent).toFixed(2)}`);
@@ -98,8 +87,8 @@ describe('PartitionedBuffer', function(){
 		assert(concurrent < nonConcurrent);
 		for(let i=0; i<100; ++i){
 			const spotCheck = Math.floor(Math.random() * size);
-			// console.debug(`\n array: ${nonConResult[i]}\nparbuf: ${parbuf[i]}`);
-			assert(nonConResult[spotCheck] === parbuf[spotCheck]);
+			// console.debug(`\n array: ${result[i]}\nparbuf: ${parbuf[i]}`);
+			assert(result[spotCheck] === parbuf[spotCheck]);
 		}
 	});
 });
