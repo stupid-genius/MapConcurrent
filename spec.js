@@ -38,17 +38,27 @@ describe('PartitionedBuffer', function(){
 	});
 	it('should allow mapping over elements', async function(){
 		const parbuf = new PartitionedBuffer(Int32Array, 120);
-		parbuf.push(42, 24, 16, 32);
+		const elem = [42, 24, 16, 32, 1, 2];
+		parbuf.push(elem);
 
-		await parbuf.map((e) => e * 2);
-		expect(Array.from(parbuf)).deep.equal([84, 48, 32, 64]);
+		function work(x){
+			return x * 2;
+		}
+
+		const round1 = elem.map(work);
+		await parbuf.map(work);
+		expect(Array.from(parbuf)).deep.equal(round1);
+
+		const round2 = round1.map(work);
+		await parbuf.map(work);
+		expect(Array.from(parbuf)).deep.equal(round2);
 	});
 	it('should be faster than non-concurrent map', async function(){
 		this.timeout(10000);
 		const maxInt = 2**31 - 1;
 		const size = 10000*navigator.hardwareConcurrency;
-		const min = Math.floor(maxInt/10);
-		const max = min*2;
+		const min = 1;
+		const max = Math.floor(maxInt * .4);
 
 		console.log(`Comparing performance for ${size.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")} random integers`);
 		// console.debug(`in range (${min}, ${max})`);
@@ -65,7 +75,7 @@ describe('PartitionedBuffer', function(){
 			const iterations = 25;
 			for(let i = 0; i < iterations; i++){
 				for(let j = 0; j < iterations; j++){
-					result = x * (Math.sin(result * i) + Math.cos(result * j)) + x;
+					result = x * (Math.cos(result * i) + Math.sin(result * j)) + x;
 				}
 			}
 			return Math.floor(result);
